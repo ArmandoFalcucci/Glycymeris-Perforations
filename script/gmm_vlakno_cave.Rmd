@@ -1,0 +1,90 @@
+---
+---
+
+This is an RMarkdown document for the analysis of the shape of perforation holes on Columbella rustica shells from the site of Vlakno cave (Croatia). The results of this analyses are presented in the paper "Prehistoric ornaments in a changing environment. An integrated approach to the Late Upper Palaeolithic and Mesolithic Columbella rustica shells from the Vlakno cave, Croatia" by Cvitkušić, B, Cristiani,E. Zupancich, A. & Vujević, D.
+
+Load libraries
+```{r}
+library(Momocs)
+library(tidyverse)
+library(readr)
+library(ggsci)
+library(ggpubr)
+```
+
+Make reproducible
+```{r}
+set.seed(123)
+```
+
+Load archaeological and experimental dataset
+```{r}
+perforation_comparison_df <- read_csv("experimental_archaeological_perforation_comparison.csv")
+```
+Data transformation
+```{r}
+perforation_comparison_df <- column_to_rownames(perforation_comparison_df, var = "id") # Set the "id" column as rowname
+```
+
+
+Import LDK data
+```{r}
+perforation_comparison_lm <- import_tps("experimental_archaeological_perforations.TPS") # Import TPS data of the experimental perforations
+```
+
+Create an outline shape
+```{r}
+perforation_comparison_shape <- Out(perforation_comparison_lm$coo, fac = perforation_comparison_df)
+```
+
+Experimental shape processing: Shape normalisation
+```{r}
+perforation_comparison_shape_norm <- coo_center(perforation_comparison_shape) # Set a common centroid
+perforation_comparison_shape_norm <- coo_scale(perforation_comparison_shape_norm)  # Scale
+perforation_comparison_shape_norm <- coo_close(perforation_comparison_shape_norm) # Close eventual open shapes
+perforation_comparison_shape_norm <- perforation_comparison_shape_norm %>% 
+                 coo_slidedirection(direction = "right") %>% 
+                 coo_untiltx() %>% pile()%>% draw_centroid() # Set a common origin point and stack the shapes
+```
+
+Shape processing: Shape calibration
+```{r}
+perforation_comparison_hpower <- calibrate_harmonicpower_efourier(perforation_comparison_shape_norm, plot = F) # Define the number of harmonics
+perforation_comparison_efashape <- efourier(perforation_comparison_shape_norm, nb.h = 12, smooth.it = 0, norm = FALSE) # Euclidean Fourier Transformation on Shape using 99% of harmonic power
+```
+
+Principal Component Analysis - PCA
+```{r}
+# Principal Component Analysis
+perforation_comparison_pca <- PCA(perforation_comparison_efashape) # PCA
+scree(perforation_comparison_pca) # Scree
+perforation_comparison_PCcontribution <- PCcontrib(perforation_comparison_pca, nax = 1:10) # Visualise the contribution of each Principal Component
+```
+Data visualisation
+```{r}
+perforation_comparison.pl <-  plot_PCA(perforation_comparison_pca, axes = c(1, 2), ~ perforation_origin, morphospace = TRUE, points = TRUE,zoom = .9, chull = FALSE,  palette = pal_jama(), legend = TRUE) %>% layer_chullfilled(alpha = 0.8) %>% layer_legend(cex = 2/6) # Plot the PCA
+```
+
+Mean shape
+```{r}
+perforation_comparison_meanshape <- MSHAPES(perforation_comparison_efashape, ~ perforation_origin) # Compute the mean shape of the experimental perforations
+mshape_perforation_comparison.pl <- plot_MSHAPES(perforation_comparison_meanshape, size = 3/4,
+                               palette=pal_manual(c("orange", "purple"))) # Plot the mean shapes
+```
+
+Multivariate analysis: MANOVA
+```{r}
+maov_perforation_comparison <- perforation_comparison_efashape %>% 
+  MANOVA(~ perforation_origin, retain = .95) # MANOVA
+maov_perforation_comparison # Visualise MANOVA results
+```
+MANOVA Pairwise
+```{r}
+options(scipen = 100)
+maovpw_perforation_comparison <- perforation_comparison_pca %>% 
+                           MANOVA_PW(~ perforation_origin, retain = .95)
+```
+
+
+
+
