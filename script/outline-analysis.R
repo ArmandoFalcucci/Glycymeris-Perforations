@@ -10,26 +10,35 @@ library(vegan)
 library(pairwiseAdonis)
 library(MetBrewer)
 library(dispRity)
+library(readxl)
+
+dataset <- read_excel("data/dataset.xlsx")
+
+# Assuming the "ID" column contains the IDs you want to use
+ids_to_keep <- dataset$ID
 
 set.seed(123)  # Set seed for reproducibility
 
-
-# List of files to be removed (with prefix EXP_)
-files_to_remove <- c("EXP_63", "EXP_82", "EXP_87", "EXP_133", "EXP_138", "EXP_172", "EXP_183")
-
-# 1. Reading file names ----
+# 2. Reading file names
 lf <- list.files("data/outlines", pattern = "\\.txt$", full.names = TRUE)
 
-# Remove the files that are in the 'files_to_remove' list
-lf2 <- lf[!basename(lf) %in% paste0(files_to_remove, ".txt")]
+# 3. Keep only the files that match IDs from the dataset
+lf2 <- lf[basename(lf) %in% paste0(ids_to_keep, ".txt")]
 
-# Output the remaining files after removal
+# Output the remaining files after filtering
 print(lf2)
 
-library(readxl)
-
-# 2. Modifying the dataset ----
-dataset <- read_excel("data/dataset.xlsx")
+# # List of files to be removed (with prefix EXP_)
+# files_to_remove <- c("EXP_63", "EXP_82", "EXP_87", "EXP_133", "EXP_138", "EXP_172", "EXP_183")
+# 
+# # 1. Reading file names ----
+# lf <- list.files("data/outlines", pattern = "\\.txt$", full.names = TRUE)
+# 
+# # Remove the files that are in the 'files_to_remove' list
+# lf2 <- lf[!basename(lf) %in% paste0(files_to_remove, ".txt")]
+# 
+# # Output the remaining files after removal
+# print(lf2)
 
 # # Exclude specific IDs
 # ids_to_exclude <- c("RB_231", "RB_446", "RB_451", "RB_504", "RB_825") 
@@ -37,16 +46,16 @@ dataset <- read_excel("data/dataset.xlsx")
 #   filter(!ID %in% ids_to_exclude)
 
 # 3. Extracting coordinates and attaching IDs ----
-Coordinates <- import_txt(lf)
+Coordinates <- import_txt(lf2)
 # Coordinates_perforation <- dataset %>%
 #   pull("ID") %>%
 #   as.character()
 
-ids_to_remove <- c("EXP_63", "EXP_82", "EXP_87", "EXP_133", "EXP_138", "EXP_172", "EXP_183")
+# ids_to_remove <- c("EXP_63", "EXP_82", "EXP_87", "EXP_133", "EXP_138", "EXP_172", "EXP_183")
 
 # Filter out the rows with IDs to be removed
-dataset.filtered <- dataset %>%
-  filter(!(ID %in% ids_to_remove))
+dataset.filtered <- dataset
+  # filter(!(ID %in% ids_to_remove))
 
 # Pull the IDs from the dataset and convert them to character
 # Coordinates_perforation <- dataset %>%
@@ -78,13 +87,13 @@ harmonic_power <- calibrate_harmonicpower_efourier(GM_perforation_centered_scale
 harmonic_power
 
 # 6. EFA analysis ----
-GM_perforation_centered_scaled.EFA <- efourier(GM_perforation_centered_scaled, nb.h = 43, smooth.it = 0, norm = T)
+GM_perforation_centered_scaled.EFA <- efourier(GM_perforation_centered_scaled, nb.h = 41, smooth.it = 0, norm = T)
 
 # 7. PCA (Principal Component Analysis) ----
 GM_perforation_centered_scaled.PCA <- PCA(GM_perforation_centered_scaled.EFA)
 
 # 8. Screeplot ----
-GM_screeplot <- Momocs::scree_plot(GM_perforation_centered_scaled_rotated.PCA, nax = 1:8) +
+GM_screeplot <- Momocs::scree_plot(GM_perforation_centered_scaled.PCA, nax = 1:8) +
   cowplot::theme_minimal_grid() +
   theme(plot.title = element_blank(),
         axis.title = element_text(size = 16),
@@ -212,9 +221,51 @@ PC1toPC2.Type <- ggplot(data = dataset.filtered, aes(x = PC1, y = PC2, color = T
         axis.title.x = element_text(size = 14, hjust = -0.2),
         axis.title.y = element_text(size = 14),
         axis.text = element_text(size=12))
-  # scale_color_manual(labels=c("A1 (n = 171)", "A2 (n = 198)"), values=A1_A2_palette)
 
 PC1toPC2.Type
+
+
+library(ggplot2)
+
+# Define the IDs you want to highlight
+highlight_ids <- c("ARCH_83", "ARCH_53", "ARCH_52", "ARCH_13")
+
+# Highlighted data subset
+highlighted_data <- dataset.filtered[dataset.filtered$ID %in% highlight_ids, ]
+
+# Your existing plot with the highlighted points and names
+PC1toPC2.Type <- ggplot(data = dataset.filtered, aes(x = PC1, y = PC2, color = Type)) +
+  geom_point(size = 2.5, alpha = 0.5) +
+  labs(y = "PC2 (14% of total variance)", x = "PC1 (62% of total variance)") +
+  geom_hline(yintercept = 0, 
+             linetype = "dashed", 
+             color = "black",
+             size = 1, 
+             alpha = 0.5) +
+  geom_vline(xintercept = 0, 
+             linetype = "dashed", 
+             color = "black",
+             size = 1, 
+             alpha = 0.5)  +
+  geom_point(data = Means_PC1_PC3.Type,
+             aes(x = PC1, y = PC2),
+             size = 4.5, shape = 16) +
+  geom_point(data = highlighted_data, aes(x = PC1, y = PC2), 
+             color = "red", size = 4, shape = 17) +  # Customize color and shape here
+  # geom_text(data = highlighted_data, aes(x = PC1, y = PC2, label = ID), 
+  #           color = "black", size = 4, vjust = -1.5) +  # Display names (IDs) above the points
+  guides(colour = guide_legend(override.aes = list(size=5))) +
+  theme_pubclean() +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        legend.text = element_text(size=14),
+        axis.title.x = element_text(size = 14, hjust = -0.2),
+        axis.title.y = element_text(size = 14),
+        axis.text = element_text(size=12))
+
+# Display the plot
+print(PC1toPC2.Type)
+
 
 
 PC1toPC2.Perf <- ggplot(data = dataset.filtered, aes(x = PC1, y = PC2, color = Perforation)) +
@@ -519,8 +570,10 @@ dev.off()
 # 13. PERMANOVA ----
 min_n_PCs.2DGM <- Momocs::scree_min(GM_perforation_centered_scaled.PCA, prop = 0.95) 
 
+min_n_PCs.2DGM
+
 # Create the Y matrix of variables under comparison:
-Y.PERMANOVA <- dataset.filtered[, c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6", "PC7", "PC8", "PC9")]
+Y.PERMANOVA <- dataset.filtered[, c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6", "PC7", "PC8")]
 
 # Perform one-way PERMANOVA
 GM_PERMANOVA.type <- vegan::adonis2(Y.PERMANOVA ~ dataset.filtered$Type, method = "euclidean", permutations = 10000)
@@ -531,6 +584,8 @@ GM_PERMANOVA.perforation <- vegan::adonis2(Y.PERMANOVA ~ dataset.filtered$Perfor
 
 # Pairwise differences:
 Pairwise_PERMANOVA.type <- pairwiseAdonis::pairwise.adonis(Y.PERMANOVA, dataset.filtered$Type, sim.method = "euclidean", p.adjust.m = "bonferroni", perm = 10000)
+
+Pairwise_PERMANOVA.type
 
 Pairwise_PERMANOVA.perf <- pairwiseAdonis::pairwise.adonis(Y.PERMANOVA, dataset.filtered$Perforation, sim.method = "euclidean", p.adjust.m = "bonferroni", perm = 10000)
 
@@ -587,11 +642,11 @@ disparity_df_discrete_GM.plot <-
         axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5, size = 16),
         axis.title.y = element_text(vjust = 0),
         axis.title = element_text(size = 18)) +
-  scale_fill_manual(values = c("A1, Local" = "#C75C4A",  # Second Zapotec color for Local
-                               "A2, Local" = "#C75C4A",  # Second Zapotec color for Local
-                               "A1, Non-local" = "#A58D65",  # Third Zapotec color for Non-local
-                               "A2, Non-local" = "#A58D65"   # Third Zapotec color for Non-local
-  )) +
+  # scale_fill_manual(values = c("A1, Local" = "#C75C4A",  # Second Zapotec color for Local
+  #                              "A2, Local" = "#C75C4A",  # Second Zapotec color for Local
+  #                              "A1, Non-local" = "#A58D65",  # Third Zapotec color for Non-local
+  #                              "A2, Non-local" = "#A58D65"   # Third Zapotec color for Non-local
+  # )) +
   guides(color = FALSE, fill = FALSE)
 
 
