@@ -77,6 +77,8 @@ GM_perforation_centered_scaled <- Momocs::coo_slidedirection(GM_perforation_cent
 # GM_perforation_centered_scaled_rotated <- Momocs::coo_rotatecenter(GM_perforation_centered_scaled, theta = -pi/2)
 
 
+# GM_perforation_centered_scaled <- Momocs::coo_slidedirection(GM_perforation_centered, direction = "right")
+
 # stack inspections
 
 stack(GM_perforation_centered_scaled)
@@ -91,6 +93,10 @@ GM_perforation_centered_scaled.EFA <- efourier(GM_perforation_centered_scaled, n
 
 # 7. PCA (Principal Component Analysis) ----
 GM_perforation_centered_scaled.PCA <- PCA(GM_perforation_centered_scaled.EFA)
+
+# lda_result <- LDA(GM_perforation_centered_scaled.PCA, fac = select(dataset.filtered, c("Type")))
+# 
+# plot_LDA(lda_result)
 
 # 8. Screeplot ----
 GM_screeplot <- Momocs::scree_plot(GM_perforation_centered_scaled.PCA, nax = 1:8) +
@@ -130,58 +136,38 @@ dataset.filtered <- left_join(dataset.filtered, GM_PCScores[ ,c("PC1", "PC2", "P
 # 11. Correlation between measurements and principal components ----
 
 # Calculate Spearman correlation for Length and PC1
-cor_length_pc1 <- cor.test(Dataset_2DGM$Length, Dataset_2DGM$PC1, method = "spearman", exact = FALSE)
-
-# Calculate Spearman correlation for Width and PC1
-cor_width_pc1 <- cor.test(Dataset_2DGM$Width, Dataset_2DGM$PC1, method = "spearman", exact = FALSE)
-
-# Calculate Spearman correlation for Thickness and PC1
-cor_thickness_pc1 <- cor.test(Dataset_2DGM$Thickness, Dataset_2DGM$PC1, method = "spearman", exact = FALSE)
-
-# Calculate Spearman correlation for Length and PC2
-cor_length_pc2 <- cor.test(Dataset_2DGM$Length, Dataset_2DGM$PC2, method = "spearman", exact = FALSE)
-
-# Calculate Spearman correlation for Width and PC2
-cor_width_pc2 <- cor.test(Dataset_2DGM$Width, Dataset_2DGM$PC2, method = "spearman", exact = FALSE)
-
-# Calculate Spearman correlation for Thickness and PC2
-cor_thickness_pc2 <- cor.test(Dataset_2DGM$Thickness, Dataset_2DGM$PC2, method = "spearman", exact = FALSE)
-
-# Calculate Spearman correlation for Length and PC3
-cor_length_pc3 <- cor.test(Dataset_2DGM$Length, Dataset_2DGM$PC3, method = "spearman", exact = FALSE)
-
-# Calculate Spearman correlation for Width and PC3
-cor_width_pc3 <- cor.test(Dataset_2DGM$Width, Dataset_2DGM$PC3, method = "spearman", exact = FALSE)
-
-# Calculate Spearman correlation for Thickness and PC3
-cor_thickness_pc3 <- cor.test(Dataset_2DGM$Thickness, Dataset_2DGM$PC3, method = "spearman", exact = FALSE)
+cor_length_pc1 <- cor.test(dataset.filtered$`Area perforation m2`, dataset.filtered$PC1, method = "spearman", exact = FALSE)
 
 
-# Create a data frame to store correlation results
-correlation_results <- data.frame(
-  Variable1 = c("Length", "Width", "Thickness", "Length", "Width", "Thickness", "Length", "Width", "Thickness"),
-  Variable2 = rep(c("PC1", "PC2", "PC3"), each = 3),
-  Spearman_Correlation = c(cor_length_pc1$estimate, cor_width_pc1$estimate, cor_thickness_pc1$estimate,
-                           cor_length_pc2$estimate, cor_width_pc2$estimate, cor_thickness_pc2$estimate,
-                           cor_length_pc3$estimate, cor_width_pc3$estimate, cor_thickness_pc3$estimate),
-  p_value = c(cor_length_pc1$p.value, cor_width_pc1$p.value, cor_thickness_pc1$p.value,
-              cor_length_pc2$p.value, cor_width_pc2$p.value, cor_thickness_pc2$p.value,
-              cor_length_pc3$p.value, cor_width_pc3$p.value, cor_thickness_pc3$p.value)
-)
+cor_length_pc2 <- cor.test(dataset.filtered$`Area perforation m2`, dataset.filtered$PC2, method = "spearman", exact = FALSE)
 
-# Optional: Round p-values for better readability
-correlation_results$p_value <- round(correlation_results$p_value, 3)
+cor_length_pc3 <- cor.test(dataset.filtered$`Area perforation m2`, dataset.filtered$PC3, method = "spearman", exact = FALSE)
 
-# Print the table
-print(correlation_results)
-
-# Clean the column names
-# correlation_results <- clean_names(correlation_results)
-
-colnames(correlation_results) <- c("Measurement", "Principal Component", "Spearman", "p-value")
-
-# Save the correlation results as an Rdata file
-save(correlation_results, file = "data/correlation_results_table.Rdata")
+# # Create a data frame to store correlation results
+# correlation_results <- data.frame(
+#   Variable1 = c("Length", "Width", "Thickness", "Length", "Width", "Thickness", "Length", "Width", "Thickness"),
+#   Variable2 = rep(c("PC1", "PC2", "PC3"), each = 3),
+#   Spearman_Correlation = c(cor_length_pc1$estimate, cor_width_pc1$estimate, cor_thickness_pc1$estimate,
+#                            cor_length_pc2$estimate, cor_width_pc2$estimate, cor_thickness_pc2$estimate,
+#                            cor_length_pc3$estimate, cor_width_pc3$estimate, cor_thickness_pc3$estimate),
+#   p_value = c(cor_length_pc1$p.value, cor_width_pc1$p.value, cor_thickness_pc1$p.value,
+#               cor_length_pc2$p.value, cor_width_pc2$p.value, cor_thickness_pc2$p.value,
+#               cor_length_pc3$p.value, cor_width_pc3$p.value, cor_thickness_pc3$p.value)
+# )
+# 
+# # Optional: Round p-values for better readability
+# correlation_results$p_value <- round(correlation_results$p_value, 3)
+# 
+# # Print the table
+# print(correlation_results)
+# 
+# # Clean the column names
+# # correlation_results <- clean_names(correlation_results)
+# 
+# colnames(correlation_results) <- c("Measurement", "Principal Component", "Spearman", "p-value")
+# 
+# # Save the correlation results as an Rdata file
+# save(correlation_results, file = "data/correlation_results_table.Rdata")
 
 # 12. Plotting results of PCA ----
 
