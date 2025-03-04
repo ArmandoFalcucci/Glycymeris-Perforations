@@ -136,12 +136,12 @@ dataset.filtered <- left_join(dataset.filtered, GM_PCScores[ ,c("PC1", "PC2", "P
 # 11. Correlation between measurements and principal components ----
 
 # Calculate Spearman correlation for Length and PC1
-cor_length_pc1 <- cor.test(dataset.filtered$`Area perforation m2`, dataset.filtered$PC1, method = "spearman", exact = FALSE)
+cor_area_pc1 <- cor.test(dataset.filtered$`Circumference perf.`, dataset.filtered$PC1, method = "spearman", exact = FALSE)
 
+cor_area_pc2 <- cor.test(dataset.filtered$`Circumference perf.`, dataset.filtered$PC2, method = "spearman", exact = FALSE)
 
-cor_length_pc2 <- cor.test(dataset.filtered$`Area perforation m2`, dataset.filtered$PC2, method = "spearman", exact = FALSE)
+cor_area_pc3 <- cor.test(dataset.filtered$`Circumference perf.`, dataset.filtered$PC3, method = "spearman", exact = FALSE)
 
-cor_length_pc3 <- cor.test(dataset.filtered$`Area perforation m2`, dataset.filtered$PC3, method = "spearman", exact = FALSE)
 
 # # Create a data frame to store correlation results
 # correlation_results <- data.frame(
@@ -302,7 +302,7 @@ PC1_Perf <- ggplot(data = dataset.filtered, aes(x = Perforation, y = PC1, color 
 PC1_Perf
 
 
-PC1_Type <- ggplot(data = dataset.filtered, aes(x = Type, y = PC1, color = Type)) +
+PC1_Type <- ggplot(data = dataset.filtered, aes(x = Type, y = PC2, color = Type)) +
   geom_boxplot(alpha = 0.5, outlier.shape = NA) +  # Create the boxplot and hide default outliers
   geom_jitter(size = 2.5, alpha = 0.5, width = 0.1, height = 0.1) +  # Add jittered points
   labs(y = "PC1 (62% of total variance)", x = "Perforation") +

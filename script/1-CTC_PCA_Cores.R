@@ -43,6 +43,9 @@ PCA_shells.morpho.size <- prcomp(PCA_shell_numeric, scale. = TRUE)
 # Summary of PCA to see variance explained by each principal component
 summary(PCA_shells.morpho.size)
 
+PCA_shells.morpho.size
+
+
 # Visualizing the Contribution Circle with Arrows
 # In this case, we are plotting the first two principal components (PC1 and PC2)
 fviz_pca_var(PCA_shells.morpho.size,
@@ -176,7 +179,7 @@ PCA1.3a <- factoextra::fviz_pca_ind(PCA_shells.morpho.size,
   # scale_color_manual(values=met.brewer("Lakota",3)) +
   # scale_color_met_d("Veronese") +
   # scale_fill_met_d("Veronese") +
-  labs(x="PC1 (47.2%)", y="PC2 (21.6%)") +
+  labs(x="PC1", y="PC3") +
   # scale_fill_manual(values=cbPalette) +
   # scale_colour_manual(values=cbPalette) +
   theme_minimal_grid() +
@@ -405,3 +408,47 @@ disparity_df_discrete_PCA.plot <-
 
 # Display the plot
 disparity_df_discrete_PCA.plot
+
+
+# boxplot circumference ----
+
+circumference <- PCA_shell %>%
+  ggplot(aes(x = Type , y = log(Circumference), color = Type)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +  # Create the boxplot and hide default outliers
+  geom_jitter(size = 2.5, alpha = 0.5, width = 0.1, height = 0.1) +  # Add jittered points
+  labs(y = "Circumference (mm)", x = "Type of perforation") +
+  # geom_hline(yintercept = 0, 
+  #            linetype = "dashed", 
+  #            color = "black",
+  #            size = 1, 
+  #            alpha = 0.5) +
+  theme_pubclean() +
+  theme(legend.position = "",
+        legend.title = element_blank(),
+        legend.text = element_text(size=14),
+        axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14),
+        axis.text = element_text(size=12))
+
+circumference
+
+area <- PCA_shell %>%
+  ggplot(aes(x = Type , y = log(Area), color = Type)) +
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +  # Create the boxplot and hide default outliers
+  geom_jitter(size = 2.5, alpha = 0.5, width = 0.1, height = 0.1) +  # Add jittered points
+  labs(y = "Area (mm2)", x = "Type of perforation") +
+  # geom_hline(yintercept = 0, 
+  #            linetype = "dashed", 
+  #            color = "black",
+  #            size = 1, 
+  #            alpha = 0.5) +
+  theme_pubclean() +
+  theme(legend.position = "",
+        legend.title = element_blank(),
+        legend.text = element_text(size=14),
+        axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14),
+        axis.text = element_text(size=12))
+
+area
+
