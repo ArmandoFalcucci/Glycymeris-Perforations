@@ -150,6 +150,9 @@ dev.off()
 
 tiff("output/figures/Figure_S3.tiff", width = 8, height = 6, units = "in", res = 300)  # Adjust resolution and dimensions as needed
 
+# Open a PDF device to save the plot
+pdf("output/figures/Figure_S3.pdf", width = 8, height = 6)  # Adjust width and height as needed
+
 # Create the PCA plot
 Figure_S3 <- plot_PCA(GM_perforation_centered_scaled.PCA, axes = c(1, 2), ~ Type, palette = sea_shell_sand_palette, morphospace = TRUE, points = TRUE, zoom = 0.9, chull = FALSE, legend = TRUE) %>% 
   layer_chullfilled(alpha = 0.8) %>% 
@@ -215,7 +218,7 @@ library(patchwork)
 combined_plot <- (circumference | area)  # Use patchwork's pipe operator for side-by-side plots
 
 # Save the combined figure as a high-resolution TIFF
-ggsave("output/figures/Figure_S4.tif", combined_plot, width = 10, height = 5, units = "in", dpi = 300)
+ggsave("output/figures/Figure_S3.tif", combined_plot, width = 10, height = 5, units = "in", dpi = 300)
 
 # 15. Proportion of variance ----
 
@@ -238,7 +241,7 @@ variance
 
 # 16. Contribution of the quantitative variables to the first two components ----
 
-Figure_AFa <- fviz_pca_var(PCA_shells.morpho.size,
+Figure_7a <- fviz_pca_var(PCA_shells.morpho.size,
                            col.var = "contrib",
                            axes =c(1,2),
                            labelsize=5,repel = T, ggtheme=theme(text=element_text(size=14),
@@ -251,11 +254,11 @@ Figure_AFa <- fviz_pca_var(PCA_shells.morpho.size,
   scale_color_gradientn(colors=met.brewer("Isfahan1"))
 
 
-Figure_AFa
+Figure_7a
 
 # 17. Plotting PC1 to PC2 visualizing the core type ----
 
-Figure_AFc <- factoextra::fviz_pca_ind(PCA_shells.morpho.size,
+Figure_7c <- factoextra::fviz_pca_ind(PCA_shells.morpho.size,
                                        axes=c(1, 2), label="none",
                                        addEllipses=T, ellipse.type="confidence",
                                        habillage=PCA_shell$Type, pointsize=2, labelsize=10, repel=T,
@@ -276,7 +279,7 @@ Figure_AFc <- factoextra::fviz_pca_ind(PCA_shells.morpho.size,
         axis.text = element_text(size=14))
 
 
-Figure_AFc
+Figure_7c
 
 
 # 17. Dataset for statistical analysis ----
@@ -339,7 +342,7 @@ for(i in data_names){
 }
 disparity_df_discrete_PCA <- do.call(rbind.data.frame, disparity_df_list)
 
-Figure_AFb <- 
+Figure_7b <- 
   disparity_df_discrete_PCA %>%
   ggplot(aes(x = Context, y = disparity)) +
   geom_violin(aes(fill = TS)) +
@@ -358,12 +361,12 @@ Figure_AFb <-
   scale_fill_manual(values = sea_shell_sand_palette) +  
   guides(color = FALSE, fill = FALSE)
 
-Figure_AFb
+Figure_7b
 
 # 20. Combine the plots ----
 
 library(patchwork)
-Figure_AF <- (Figure_AFa + Figure_AFb) / Figure_AFc + 
+Figure_7 <- (Figure_7a + Figure_7b) / Figure_7c + 
   plot_annotation(
     tag_levels = 'a'
   )
@@ -373,3 +376,5 @@ ggsave("output/figures/Figure_AF.tiff", Figure_AF, width = 10, height = 8, units
 
 # Save the combined figure as a high-resolution TIFF
 ggsave("output/figures/Figure_AF.png", Figure_AF, width = 10, height = 8, units = "in", dpi = 300)
+
+ggsave("output/figures/Figure_AF.pdf", Figure_AF, width = 10, height = 8, units = "in", dpi = 300)
