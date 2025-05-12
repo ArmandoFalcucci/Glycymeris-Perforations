@@ -38,4 +38,4 @@ To replicate the results from the paper, follow these steps:
 
 - **Code**: MIT License ([https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)), copyright holder: **Armando Falcucci** (2025).
 
-- **Data and Intellectual Work**: Creative Commons Attribution 4.0 International License ([https://creativecommons.org/licenses/by/4.0/](https://creativecommons.org/licenses/by/4.0/)), copyright holder: Venditti, Falcucci & Schürch (2025).
+- **Data and Intellectual Work**: Creative Commons Attribution 4.0 International License ([https://creativecommons.org/licenses/by/4.0/](https://creativecommons.org/licenses/by/4.0/)), copyright holder: Flavia Venditti, Armando Falcucci & Benjamin Schürch (2025).
