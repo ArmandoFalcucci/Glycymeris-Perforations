@@ -17,16 +17,11 @@ library(tidyverse)
 library(cowplot)
 library(MetBrewer)
 library(ggpubr)
+library(patchwork)
 
-# New color palette for sea, shells, and sand
 sea_shell_sand_palette <- c("#FF6347", "#1F77B4", "#D4AF37")
 
 # 1. Data import ----
-
-dataset <- read_excel("data/dataset.xlsx") %>%
-  select(ID, Type, Area.perforation, Circumference.perforation)
-
-write.csv(dataset, "data/dataset.csv", row.names = FALSE)
 
 dataset <- read.csv("data/dataset.csv")
 
@@ -95,11 +90,11 @@ GM_shape_variation <- Momocs::PCcontrib(GM_perforation_centered_scaled.PCA, nax 
 GM_shape_variation$gg
 
 ggsave(GM_shape_variation$gg,
-       filename = "output/figures/Figure_shpvar.tif",
+       filename = "output/figures/Figure_6a.tif",
        width = 5, height = 5, dpi = 300, units = "in", device = "tif")
 
 ggsave(GM_shape_variation$gg,
-       filename = "output/figures/Figure_shpvar.png",
+       filename = "output/figures/Figure_6a.png",
        width = 5, height = 5, dpi = 300, units = "in", device = "png")
 
 
@@ -148,13 +143,13 @@ dev.off()
 
 # 12. Plotting results of PCA ----
 
-tiff("output/figures/Figure_S3.tiff", width = 8, height = 6, units = "in", res = 300)  # Adjust resolution and dimensions as needed
+tiff("output/figures/Figure_6b.tiff", width = 8, height = 6, units = "in", res = 300)  # Adjust resolution and dimensions as needed
 
 # Open a PDF device to save the plot
-pdf("output/figures/Figure_S3.pdf", width = 8, height = 6)  # Adjust width and height as needed
+pdf("output/figures/Figure_6b.pdf", width = 8, height = 6)  # Adjust width and height as needed
 
 # Create the PCA plot
-Figure_S3 <- plot_PCA(GM_perforation_centered_scaled.PCA, axes = c(1, 2), ~ Type, palette = sea_shell_sand_palette, morphospace = TRUE, points = TRUE, zoom = 0.9, chull = FALSE, legend = TRUE) %>% 
+Figure_6b <- plot_PCA(GM_perforation_centered_scaled.PCA, axes = c(1, 2), ~ Type, palette = sea_shell_sand_palette, morphospace = TRUE, points = TRUE, zoom = 0.9, chull = FALSE, legend = TRUE) %>% 
   layer_chullfilled(alpha = 0.8) %>% 
   layer_legend(cex = 2/6)
 
@@ -169,7 +164,7 @@ PCA_shell <- dataset %>%
   rename(Area = Area.perforation, Circumference = Circumference.perforation, `PC1-Out` = PC1, `PC2-Out` = PC2, `PC3-Out` = PC3) %>%
   na.omit()
 
-PCA_shell_numeric <- PCA_shell[, -1]  # Remove the first column (non-numeric)
+PCA_shell_numeric <- PCA_shell[, -1]
 
 set.seed(123)
 PCA_shells.morpho.size <- prcomp(PCA_shell_numeric, scale. = TRUE)
@@ -184,7 +179,7 @@ circumference <- ggplot(PCA_shell, aes(x = Type , y = log(Circumference), fill =
   geom_boxplot(alpha = 0.5, outlier.shape = NA) +  # Create the boxplot and hide default outliers
   geom_jitter(size = 2.5, alpha = 0.5, width = 0.1, height = 0.1) +  # Add jittered points
   labs(y = "Log-Circumference", x = "") +
-  scale_fill_manual(values = sea_shell_sand_palette) +  # Apply the custom color palette
+  scale_fill_manual(values = sea_shell_sand_palette) +
   theme_pubclean() +
   theme(legend.position = "",
         legend.title = element_blank(),
@@ -198,10 +193,10 @@ circumference <- ggplot(PCA_shell, aes(x = Type , y = log(Circumference), fill =
 circumference
 
 area <- ggplot(PCA_shell, aes(x = Type , y = log(Area), fill = Type)) +
-  geom_boxplot(alpha = 0.5, outlier.shape = NA) +  # Create the boxplot and hide default outliers
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) +
   geom_jitter(size = 2.5, alpha = 0.5, width = 0.1, height = 0.1) +  # Add jittered points
   labs(y = "Log-Area", x = "") +
-  scale_fill_manual(values = sea_shell_sand_palette) +  # Apply the custom color palette
+  scale_fill_manual(values = sea_shell_sand_palette) +
   theme_pubclean() +
   theme(legend.position = "",
         legend.title = element_blank(),
@@ -209,13 +204,11 @@ area <- ggplot(PCA_shell, aes(x = Type , y = log(Area), fill = Type)) +
         axis.title.x = element_text(size = 14),
         axis.title.y = element_text(size = 14),
         axis.text = element_text(size=12)) +
-  ggtitle("b")  # Add label "B"
-
+  ggtitle("b")
 
 area
 
-library(patchwork)
-combined_plot <- (circumference | area)  # Use patchwork's pipe operator for side-by-side plots
+combined_plot <- (circumference | area)
 
 # Save the combined figure as a high-resolution TIFF
 ggsave("output/figures/Figure_S3.tif", combined_plot, width = 10, height = 5, units = "in", dpi = 300)
@@ -234,10 +227,6 @@ variance <- fviz_eig(PCA_shells.morpho.size, addlabels = T,
   theme(plot.title = element_blank())
 
 variance
-
-# # ggsave(filename="PCA_shells_PC_imp.png", plot=PCA_shells_PC_imp, device="png",
-# #        height=4, width=5, units="in", dpi=500)
-# 
 
 # 16. Contribution of the quantitative variables to the first two components ----
 
@@ -371,10 +360,9 @@ Figure_7 <- (Figure_7a + Figure_7b) / Figure_7c +
     tag_levels = 'a'
   )
 
-# Save the combined figure as a high-resolution TIFF
-ggsave("output/figures/Figure_AF.tiff", Figure_AF, width = 10, height = 8, units = "in", dpi = 300)
+# Save the combined figure
+# ggsave("output/figures/Figure_7.tiff", Figure_7, width = 10, height = 8, units = "in", dpi = 300)
+# 
+# ggsave("output/figures/Figure_7.png", Figure_7, width = 10, height = 8, units = "in", dpi = 300)
 
-# Save the combined figure as a high-resolution TIFF
-ggsave("output/figures/Figure_AF.png", Figure_AF, width = 10, height = 8, units = "in", dpi = 300)
-
-ggsave("output/figures/Figure_AF.pdf", Figure_AF, width = 10, height = 8, units = "in", dpi = 300)
+ggsave("output/figures/Figure_7.pdf", Figure_7, width = 10, height = 8, units = "in", dpi = 300)
