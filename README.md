@@ -2,7 +2,9 @@
 
 ### Compendium DOI:
 
-The content available at the provided Zenodo DOI reproduces the results as documented in the publication. The files hosted at <https://github.com/ArmandoFalcucci/Glycymeris-Perforations> represent the developmental versions and might have undergone modifications since the paper's publication.
+[![DOI](https://zenodo.org/badge/15391823.svg)](https://zenodo.org/doi/10.5281/zenodo.15391823)
+
+The content available at the above provided Zenodo URL will reproduce the results as documented in the publication. The files hosted at <https://github.com/ArmandoFalcucci/Glycymeris-Perforations> represent the developmental versions and might have undergone modifications since the paper's publication.
 
 ### Maintainer of this Repository:
 
